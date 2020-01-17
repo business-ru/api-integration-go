@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -18,8 +19,25 @@ var (
 	Address   = "https://action_457575.business.ru"
 	Token     = ""
 
-	ApiPath = "/api/rest/"
+	ApiPath               = "/api/rest/"
+	ExecutionResultString = ""
 )
+
+type BuildProcess interface {
+	setModel(Model string) BuildProcess
+	setAction() BuildProcess
+	setParams() BuildProcess
+}
+
+type CommandBuilder struct {
+	Model  string
+	Action string
+	Params struct{}
+}
+
+func (b *CommandBuilder) setModel(Model string) {
+	b.Model = Model
+}
 
 // Обновление токена
 func RefreshToken() {
@@ -59,7 +77,12 @@ func GetRefreshToken() string {
 	return s.Token
 }
 
-func Execute(Action string, Model string) {
+func Execute(Action string, Model string, Params interface{}) string {
+
+	if Params == nil {
+		fmt.Println("Params is nil")
+	}
+
 	if Token == "" {
 		RefreshToken()
 	}
@@ -85,7 +108,19 @@ func Execute(Action string, Model string) {
 		log.Fatalln(err.Error())
 	}
 
-	TokenRenew(resp.Body)
+	var body = ParseResponseBody(resp.Body)
+
+	log.Println(GetResponseBody(body))
+
+	ExecutionResultString = GetResponseBody(body)
+
+	TokenRenew(body)
+
+	return ExecutionResultString
+}
+
+func getResultAsString() string {
+	return ExecutionResultString
 }
 
 // Получение MD5-хеша строки
@@ -112,20 +147,31 @@ func GetURL(m string) *url.URL {
 	return u
 }
 
-func TokenRenew(Body io.ReadCloser) {
-	body, err := ioutil.ReadAll(Body)
-
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
+func TokenRenew(Body []byte) {
 
 	var s = new(TokenResponse)
 
-	err = json.Unmarshal(body, &s)
+	err := json.Unmarshal(Body, &s)
 
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln("UNMARSHAL RESPONSE BODY " + err.Error())
 	}
 
 	Token = s.Token
+}
+
+func GetResponseBody(Body []byte) string {
+
+	bodyString := string(Body)
+	return bodyString
+}
+
+func ParseResponseBody(Body io.ReadCloser) []byte {
+	bodyBytes, err := ioutil.ReadAll(Body)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return bodyBytes
 }
