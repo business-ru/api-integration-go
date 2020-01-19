@@ -5,7 +5,7 @@
 ### Использование ###
 
 ```console
-go get -u github.com/business_ru
+go get -u github.com/business_ru/api-integration-go
 ```
 
 ### Запуск тестов ###

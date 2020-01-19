@@ -26,5 +26,6 @@ func TestExecuteSynthetic(t *testing.T) {
 }
 
 func TestGetEmployees(t *testing.T) {
+	art := &CommandBuilder{}
 
 }

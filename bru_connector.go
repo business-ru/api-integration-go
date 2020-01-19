@@ -13,35 +13,56 @@ import (
 	"strings"
 )
 
-var (
-	SecretKey = "wDskRiaWuV83wT5H24WDmlFJ3t9UY5ek"
-	AppID     = "848593"
-	Address   = "https://action_457575.business.ru"
-	Token     = ""
-
-	ApiPath               = "/api/rest/"
-	ExecutionResultString = ""
+const (
+	ApiPath = "/api/rest/"
 )
 
-type BuildProcess interface {
-	setModel(Model string) BuildProcess
-	setAction() BuildProcess
-	setParams() BuildProcess
+type ApiBuilder interface {
+	setAddress(Address string) ApiBuilder
+	setAppID(AppID string) ApiBuilder
+	setSecretKey(SecretKey string) ApiBuilder
+	setModel(Model string) ApiBuilder
+	setAction() ApiBuilder
+	setParams() ApiBuilder
 }
 
 type CommandBuilder struct {
-	Model  string
-	Action string
-	Params struct{}
+	Address   string
+	AppID     string
+	SecretKey string
+	Model     string
+	Action    string
+	Token     string
+	Params    struct{}
 }
 
-func (b *CommandBuilder) setModel(Model string) {
-	b.Model = Model
+func New() {
+	return &ApiBuilder()
+}
+
+func (b *CommandBuilder) setAddress(Address string) {
+	b.Address = Address
+}
+
+func (b *CommandBuilder) setAppID(AppID string) {
+	b.AppID = AppID
+}
+
+func (b *CommandBuilder) setSecretKey(SecretKey string) {
+	b.SecretKey = SecretKey
+}
+
+func (b *CommandBuilder) setToken(Token string) {
+	b.Token = Token
+}
+
+func (b *CommandBuilder) getToken() string {
+	return b.Token
 }
 
 // Обновление токена
 func RefreshToken() {
-	Token = GetRefreshToken()
+	CommandBuilder{}.setToken(GetRefreshToken())
 }
 
 // Полеучение нового токена
@@ -49,8 +70,8 @@ func GetRefreshToken() string {
 
 	u := GetURL("repair")
 	uq := u.Query()
-	uq.Set("app_id", AppID)
-	uq.Set("app_psw", GetMD5Hash(SecretKey+uq.Encode()))
+	uq.Set("app_id", CommandBuilder{}.SecretKey)
+	uq.Set("app_psw", GetMD5Hash(CommandBuilder{}.SecretKey+uq.Encode()))
 
 	u.RawQuery = uq.Encode()
 
@@ -83,7 +104,7 @@ func Execute(Action string, Model string, Params interface{}) string {
 		fmt.Println("Params is nil")
 	}
 
-	if Token == "" {
+	if &CommandBuilder.getToken() == "" {
 		RefreshToken()
 	}
 
