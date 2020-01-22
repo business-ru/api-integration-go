@@ -25,6 +25,6 @@ func TestExecuteSynthetic(t *testing.T) {
 	Execute(http.MethodGet, "deals", nil)
 }
 
-func TestGetEmployees(t *testing.T) {
+func TestGetEmployees(t *testing.T, b *) {
 
 }
