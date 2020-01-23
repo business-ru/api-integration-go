@@ -13,7 +13,7 @@ import (
 )
 
 // Полеучение нового токена
-func RefreshToken(b *connectorBuilder) {
+func RefreshToken(b *СonnectorBuilder) {
 
 	u := GetURL(b, "repair")
 	uq := u.Query()
@@ -45,7 +45,7 @@ func RefreshToken(b *connectorBuilder) {
 	b.AppToken = s.Token
 }
 
-func (b *connectorBuilder) Execute(Action string, Model string, Params interface{}) {
+func (b *СonnectorBuilder) Execute(Action string, Model string, Params interface{}) {
 
 	if b.AppToken == "" {
 		RefreshToken(b)
@@ -87,7 +87,7 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func GetURL(b *connectorBuilder, m string) *url.URL {
+func GetURL(b *СonnectorBuilder, m string) *url.URL {
 	var ub strings.Builder
 
 	ub.WriteString(b.AppAddress)
@@ -104,7 +104,7 @@ func GetURL(b *connectorBuilder, m string) *url.URL {
 	return u
 }
 
-func TokenRenew(Body []byte, b *connectorBuilder) {
+func TokenRenew(Body []byte, b *СonnectorBuilder) {
 
 	var s = new(TokenResponse)
 
