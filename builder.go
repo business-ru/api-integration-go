@@ -14,6 +14,11 @@ type СonnectorBuilder struct {
 	AppToken     string
 }
 
+type Response struct {
+	AsString string
+	AsStruct struct{}
+}
+
 func NewBuilder() *СonnectorBuilder {
 	return &СonnectorBuilder{}
 }
@@ -32,4 +37,9 @@ func (b *СonnectorBuilder) SetAppSecretKey(k string) {
 
 func (b *СonnectorBuilder) SetAppToken(t string) {
 	b.AppToken = t
+}
+
+func GetResponseAsString() string {
+	r := &Response{}
+	return r.AsString
 }
