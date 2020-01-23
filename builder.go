@@ -1,35 +1,35 @@
-package business_ru_api_integration_go
+package bru_api
 
-type connectorBuilderProcess interface {
-	setAppID(string) *connectorBuilder
-	setAddress(string) *connectorBuilder
-	setSecretKey(string) *connectorBuilder
-	setAppToken(string) *connectorBuilder
+type СonnectorBuilderProcess interface {
+	setAppID(string) *СonnectorBuilder
+	setAddress(string) *СonnectorBuilder
+	setSecretKey(string) *СonnectorBuilder
+	setAppToken(string) *СonnectorBuilder
 }
 
-type connectorBuilder struct {
+type СonnectorBuilder struct {
 	AppID        string
 	AppAddress   string
 	AppSecretKey string
 	AppToken     string
 }
 
-func newBuilder() *connectorBuilder {
-	return &connectorBuilder{}
+func NewBuilder() *СonnectorBuilder {
+	return &СonnectorBuilder{}
 }
 
-func (b *connectorBuilder) setAppID(id string) {
+func (b *СonnectorBuilder) SetAppID(id string) {
 	b.AppID = id
 }
 
-func (b *connectorBuilder) setAddress(ad string) {
+func (b *СonnectorBuilder) SetAddress(ad string) {
 	b.AppAddress = ad
 }
 
-func (b *connectorBuilder) setAppSecretKey(k string) {
+func (b *СonnectorBuilder) SetAppSecretKey(k string) {
 	b.AppSecretKey = k
 }
 
-func (b *connectorBuilder) setAppToken(t string) {
+func (b *СonnectorBuilder) SetAppToken(t string) {
 	b.AppToken = t
 }

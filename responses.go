@@ -1,4 +1,4 @@
-package business_ru_api_integration_go
+package bru_api
 
 type TokenResponse struct {
 	Token       string `json:"token"`

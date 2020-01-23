@@ -1,4 +1,4 @@
-package business_ru_api_integration_go
+package bru_api
 
 import (
 	"log"
@@ -6,11 +6,11 @@ import (
 )
 
 func TestGetEmployees(t *testing.T) {
-	api := newBuilder()
-	api.setAppID("")
-	api.setAddress("")
-	api.setAppSecretKey("")
-	api.Execute(actionGet, "", nil)
+	api := NewBuilder()
+	api.SetAppID("")
+	api.SetAddress("")
+	api.SetAppSecretKey("")
+	api.Execute(ActionGet, "", nil)
 
 	log.Println(api.AppToken)
 }
