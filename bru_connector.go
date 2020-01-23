@@ -1,10 +1,9 @@
-package business_ru_api_integration_go
+package bru_api
 
 import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -13,65 +12,13 @@ import (
 	"strings"
 )
 
-const (
-	ApiPath = "/api/rest/"
-)
-
-type ApiBuilder interface {
-	setAddress(Address string) ApiBuilder
-	setAppID(AppID string) ApiBuilder
-	setSecretKey(SecretKey string) ApiBuilder
-	setModel(Model string) ApiBuilder
-	setAction() ApiBuilder
-	setParams() ApiBuilder
-}
-
-type CommandBuilder struct {
-	Address   string
-	AppID     string
-	SecretKey string
-	Model     string
-	Action    string
-	Token     string
-	Params    struct{}
-}
-
-func New() {
-	return &ApiBuilder()
-}
-
-func (b *CommandBuilder) setAddress(Address string) {
-	b.Address = Address
-}
-
-func (b *CommandBuilder) setAppID(AppID string) {
-	b.AppID = AppID
-}
-
-func (b *CommandBuilder) setSecretKey(SecretKey string) {
-	b.SecretKey = SecretKey
-}
-
-func (b *CommandBuilder) setToken(Token string) {
-	b.Token = Token
-}
-
-func (b *CommandBuilder) getToken() string {
-	return b.Token
-}
-
-// Обновление токена
-func RefreshToken() {
-	CommandBuilder{}.setToken(GetRefreshToken())
-}
-
 // Полеучение нового токена
-func GetRefreshToken() string {
+func RefreshToken(b *СonnectorBuilder) {
 
-	u := GetURL("repair")
+	u := GetURL(b, "repair")
 	uq := u.Query()
-	uq.Set("app_id", CommandBuilder{}.SecretKey)
-	uq.Set("app_psw", GetMD5Hash(CommandBuilder{}.SecretKey+uq.Encode()))
+	uq.Set("app_id", b.AppID)
+	uq.Set("app_psw", GetMD5Hash(b.AppSecretKey+uq.Encode()))
 
 	u.RawQuery = uq.Encode()
 
@@ -95,24 +42,20 @@ func GetRefreshToken() string {
 		log.Fatalln(err.Error())
 	}
 
-	return s.Token
+	b.AppToken = s.Token
 }
 
-func Execute(Action string, Model string, Params interface{}) string {
+func (b *СonnectorBuilder) Execute(Action string, Model string, Params interface{}) {
 
-	if Params == nil {
-		fmt.Println("Params is nil")
+	if b.AppToken == "" {
+		RefreshToken(b)
 	}
 
-	if &CommandBuilder.getToken() == "" {
-		RefreshToken()
-	}
-
-	u := GetURL(Model)
+	u := GetURL(b, Model)
 
 	uq := u.Query()
-	uq.Set("app_id", AppID)
-	uq.Set("app_psw", GetMD5Hash(Token+SecretKey+uq.Encode()))
+	uq.Set("app_id", b.AppID)
+	uq.Set("app_psw", GetMD5Hash(b.AppToken+b.AppSecretKey+uq.Encode()))
 	u.RawQuery = uq.Encode()
 
 	client := &http.Client{}
@@ -133,15 +76,8 @@ func Execute(Action string, Model string, Params interface{}) string {
 
 	log.Println(GetResponseBody(body))
 
-	ExecutionResultString = GetResponseBody(body)
+	TokenRenew(body, b)
 
-	TokenRenew(body)
-
-	return ExecutionResultString
-}
-
-func getResultAsString() string {
-	return ExecutionResultString
 }
 
 // Получение MD5-хеша строки
@@ -151,11 +87,11 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func GetURL(m string) *url.URL {
+func GetURL(b *СonnectorBuilder, m string) *url.URL {
 	var ub strings.Builder
 
-	ub.WriteString(Address)
-	ub.WriteString(ApiPath)
+	ub.WriteString(b.AppAddress)
+	ub.WriteString("/api/rest/")
 	ub.WriteString(m)
 	ub.WriteString(".json")
 
@@ -168,7 +104,7 @@ func GetURL(m string) *url.URL {
 	return u
 }
 
-func TokenRenew(Body []byte) {
+func TokenRenew(Body []byte, b *СonnectorBuilder) {
 
 	var s = new(TokenResponse)
 
@@ -178,7 +114,7 @@ func TokenRenew(Body []byte) {
 		log.Fatalln("UNMARSHAL RESPONSE BODY " + err.Error())
 	}
 
-	Token = s.Token
+	b.AppToken = s.Token
 }
 
 func GetResponseBody(Body []byte) string {

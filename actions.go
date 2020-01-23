@@ -1,6 +1,6 @@
-package business_ru_api_integration_go
+package bru_api
 
 const (
-	actionGet  = "GET"
-	actionPost = "POST"
+	ActionGet  = "GET"
+	ActionPost = "POST"
 )

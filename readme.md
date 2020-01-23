@@ -5,10 +5,14 @@
 ### Использование ###
 
 ```console
-go get -u github.com/business_ru/api-integration-go
+go get -u github.com/business-ru/api-integration-go
 ```
 
 ### Запуск тестов ###
 ```console
 go test -v
+```
+
+```go
+api := bruConnector.newBuilder()
 ```
