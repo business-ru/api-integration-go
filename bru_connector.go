@@ -45,7 +45,7 @@ func RefreshToken(b *СonnectorBuilder) {
 	b.AppToken = s.Token
 }
 
-func (b *СonnectorBuilder) Execute(Action string, Model string, Params interface{}) {
+func (b *СonnectorBuilder) Execute(Action string, Model string, Params interface{}) *Response {
 
 	if b.AppToken == "" {
 		RefreshToken(b)
@@ -74,10 +74,11 @@ func (b *СonnectorBuilder) Execute(Action string, Model string, Params interfac
 
 	var body = ParseResponseBody(resp.Body)
 
-	log.Println(GetResponseBody(body))
-
 	TokenRenew(body, b)
 
+	r := &Response{}
+	r.AsString = GetResponseBody(body)
+	return r
 }
 
 // Получение MD5-хеша строки
